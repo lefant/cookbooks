@@ -20,3 +20,8 @@ plugins.each do |plugin|
     notifies :restart, resources(:service => "rabbitmq-server")
   end
 end
+
+rabbitmq_user "guest" do
+  tag "monitoring"
+  action :set_tag
+end
