@@ -61,3 +61,10 @@ end
 
 service "rabbitmq-server" do
 end
+
+# by default guest user is admin, this removes all permissions
+rabbitmq_user "guest" do
+  vhost "/"
+  permissions "\"\" \"\" \"\""
+  action :set_permissions
+end
