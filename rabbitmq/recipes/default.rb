@@ -58,3 +58,6 @@ when "redhat", "centos", "scientific"
     action :install
   end
 end
+
+service "rabbitmq-server" do
+end
