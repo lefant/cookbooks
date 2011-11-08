@@ -36,13 +36,13 @@ end
 action :set_permissions do
   if new_resource.vhost
     execute "rabbitmqctl set_permissions -p #{new_resource.vhost} #{new_resource.user} #{new_resource.permissions}" do
-      not_if "rabbitmqctl list_user_permissions | grep #{new_resource.user}"
+      only_if "rabbitmqctl list_user_permissions #{new_resource.user}"
       Chef::Log.info "Setting RabbitMQ user permissions for '#{new_resource.user}' on vhost #{new_resource.vhost}."
       new_resource.updated_by_last_action(true)
     end
   else
     execute "rabbitmqctl set_permissions #{new_resource.user} #{new_resource.permissions}" do
-      not_if "rabbitmqctl list_user_permissions | grep #{new_resource.user}"
+      only_if "rabbitmqctl list_user_permissions #{new_resource.user}"
       Chef::Log.info "Setting RabbitMQ user permissions for '#{new_resource.user}'."
       new_resource.updated_by_last_action(true)
     end
@@ -52,15 +52,23 @@ end
 action :clear_permissions do
   if new_resource.vhost
     execute "rabbitmqctl clear_permissions -p #{new_resource.vhost} #{new_resource.user}" do
-      only_if "rabbitmqctl list_user_permissions | grep #{new_resource.user}"
+      only_if "rabbitmqctl list_user_permissions #{new_resource.user}"
       Chef::Log.info "Clearing RabbitMQ user permissions for '#{new_resource.user}' from vhost #{new_resource.vhost}."
       new_resource.updated_by_last_action(true)
     end
   else
     execute "rabbitmqctl clear_permissions #{new_resource.user}" do
-      only_if "rabbitmqctl list_user_permissions | grep #{new_resource.user}"
+      only_if "rabbitmqctl list_user_permissions #{new_resource.user}"
       Chef::Log.info "Clearing RabbitMQ user permissions for '#{new_resource.user}'."
       new_resource.updated_by_last_action(true)
     end
+  end
+end
+
+action :set_tag do
+  execute "rabbitmqctl set_user_tags #{new_resource.user} #{new_resource.tag}" do
+    not_if "rabbitmqctl list_users | grep '#{new_resource.user}.*[#{new_resource.tag}]'"
+    Chef::Log.info "Set RabbitMQ user tag '#{new_resource.tag}' for '#{new_resource.user}'."
+    new_resource.updated_by_last_action(true)
   end
 end
